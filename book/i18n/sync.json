@@ -1254,11 +1254,11 @@
       "translation_sha256": "8eb347c0b80c31296519b963955dabf41cc4099a579dc5243a0071e9e681e886"
     },
     "docs/rag/07-structured-queries/22-text-to-sql.md": {
-      "note": "Reviewed paired English and Chinese corrections for the 12 findings from the full English audit at 91950f6: evaluator types, static planning, parent mappings, explicit PostgreSQL URLs, functional migration versus canary traffic, Squid version/policy, text-video metrics, frozen weights versus behavior, conversation state, sandbox scope, grouped DISTINCT, and Celsius. Checked affected prose, tables, diagram, summary and cited primary sources; no chapter inventory or formula changes.",
-      "reviewed_at": "2026-09-20T06:43:50+00:00",
-      "source_sha256": "127dc0f8c702fbe593851737f556345750a83b71b981b613c60dbc4502577a1f",
+      "note": "Reviewed the paired schema-selection section against the cited EACL 2026 papers on 2026-09-29; preserved the order example, authorization boundary, join-path conditions, and evaluation distinctions in both languages.",
+      "reviewed_at": "2026-09-29T04:11:06+00:00",
+      "source_sha256": "7e46ad05428a4c76a619beab0788078f821620a33ad80112bcd86afdae55fc96",
       "translation": "docs/rag/07-structured-queries/22-text-to-sql.zh.md",
-      "translation_sha256": "5cdd4b7f16124846410ce16877b4a1e894f10ba141c8d439037fca1f35075b10"
+      "translation_sha256": "fc225d59d13cbc4042ec7d0982aedf6d3c5afb6e3033a7d4717597dde5af6b65"
     },
     "docs/rag/07-structured-queries/README.md": {
       "note": "Initial full English-first migration from be53feda: all 143 knowledge chapters and reader/support page pairs reviewed; primary-source checks and approved paired corrections are recorded in book/i18n/reviews. Chinese links localized and both reading indexes regenerated; version pairing does not replace semantic review.",
