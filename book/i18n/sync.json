@@ -1261,11 +1261,11 @@
       "translation_sha256": "8eb347c0b80c31296519b963955dabf41cc4099a579dc5243a0071e9e681e886"
     },
     "docs/rag/07-structured-queries/22-text-to-sql.md": {
-      "note": "Reviewed paired English/Chinese compact diagrams and adjacent explanations across all nine topics; preserved conditions, sequence, failures, code and math. Applied and verified lossless shared-reference migration in both languages. Reviewed updated reading and exporter guidance. Rendering and source preservation reports retained with the RC2 review artifacts.",
-      "reviewed_at": "2026-10-09T06:20:31+00:00",
-      "source_sha256": "f2c8c26174e3c4f4fae2926cc01cb11c35cdc20da81bc9a9a28959c9663c2a87",
+      "note": "Reviewed the paired regression run instructions against the current chapter; preserved the published SQL, snapshot, centralized citations and scope limits. Verified the added equal-amount order with independent Python calculation.",
+      "reviewed_at": "2026-10-11T01:51:35+00:00",
+      "source_sha256": "3e4e7aec12aa3766c5b9e688e7c0cac52d1628a2786cdf3716d34fdb5d8910fb",
       "translation": "docs/rag/07-structured-queries/22-text-to-sql.zh.md",
-      "translation_sha256": "99a67d1c9d1ff346fd247e37588532b333c8cf0806835f67c3a8ac10d17521db"
+      "translation_sha256": "42323d7ce3fdad44cbff5fd6c756d7d60d1da2e5997deb8a6db9031bbb481ec3"
     },
     "docs/rag/07-structured-queries/README.md": {
       "note": "Initial full English-first migration from be53feda: all 143 knowledge chapters and reader/support page pairs reviewed; primary-source checks and approved paired corrections are recorded in book/i18n/reviews. Chinese links localized and both reading indexes regenerated; version pairing does not replace semantic review.",

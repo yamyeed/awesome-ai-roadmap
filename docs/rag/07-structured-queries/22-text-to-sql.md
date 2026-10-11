@@ -256,6 +256,16 @@ This validates the query result on a fixed snapshot, not any model's SQL-generat
 
 A small dataset can let incorrect SQL produce the right answer by coincidence. Regression cases should include order IDs shared across tenants, customers with different permissions within one tenant, two orders with equal amounts, multiline orders, partial shipments, cancelled orders with remaining quantities, and orders exactly at both date boundaries. Test empty results and missing fields separately. Authorization tests should deliberately omit scope predicates or request base tables or prohibited functions, confirming that the execution service rejects the request or can return only authorized data—not merely that the model follows its prompt.
 
+The repository includes an executable regression check for this example. From the repository root, run it with Python's standard library; no model API or database service is needed:
+
+```bash
+python3 -B -m unittest discover -s scripts/tests -p test_text_to_sql_example.py -v
+```
+
+The check reads each edition's DDL, data tables, bound values, query, and expected result directly from §§22.3–22.5. It executes the maintained SQL in a fresh in-memory SQLite database and compares the ordered integer results with a separate Python calculation. Deliberately incorrect queries must produce different results: dropping the tenant join key or customer filter, counting joined lines as orders, summing repeated header amounts, changing either time boundary, and including cancelled or fully shipped orders. A separate case distinguishes a missing-column error from a legitimate empty result.
+
+For the `SUM(DISTINCT ...)` trap, the test first confirms that the wrong query passes the original snapshot. It then adds T1/O108, a second C1 order with the same quantities and amounts as O102. C1 should now have 3 orders, 14 units, and 11000 fen outstanding; the wrong query still reports 7000 fen. This additional fixture makes the error observable without changing the published snapshot. These checks validate the chapter's query semantics and bilingual example consistency, not model accuracy or an authorization sandbox; they intentionally retain out-of-scope teaching rows to expose filtering mistakes.
+
 Report separate metrics. **Execution success rate** measures whether queries finish within the rules and resource budgets. **Execution accuracy** measures whether results match reference answers. **Business correctness** additionally requires the right question definition, authorized scope, temporal version, and final explanation. A valid query can compute the wrong question precisely; high scores on the first two metrics cannot replace business acceptance. Rerun the same task set after prompt changes, schema upgrades, or model replacements, retaining every failure category.
 
 ## 22.8 Deliver the data—and explain what it establishes
