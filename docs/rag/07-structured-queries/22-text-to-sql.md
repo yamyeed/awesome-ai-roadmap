@@ -213,7 +213,17 @@ The exact result is below. The application may convert fen to yuan for display w
 
 On first reviewing the draft, Lin notices that `COUNT(*)` immediately after the join would count O101 as two orders. `SUM(o.total_amount_cents)` would also count its 10000 fen twice.
 
-`SUM(DISTINCT amount)` is not a general remedy: if O102 and O106 were summed across customers in one aggregate, their equal contract values of 4000 fen would turn an 8000-fen total into 4000 fen. They belong to different customers, so this does not happen between their separate groups in the query above; aggregate `DISTINCT` removes duplicates within each group. A regression case for that query should include two distinct orders with equal unshipped totals for the same customer. Establish the row granularity first rather than adding `DISTINCT` whenever a number looks too large.
+`SUM(DISTINCT amount)` is not a general remedy: if O102 and O106 were summed across customers in one aggregate, their equal contract values of 4000 fen would turn an 8000-fen total into 4000 fen. They belong to different customers, so this does not happen between their separate groups in the query above; aggregate `DISTINCT` removes duplicates within each group.
+
+To expose the same mistake within C1's group, consider an extension of the snapshot: add T1/O108 for C1, with the same dates and status as O102 and one line of 4 units at 1000 fen each, none shipped. The original snapshot and its result above remain unchanged; this extended case has:
+
+| C1 order | Unshipped units | Unshipped amount (fen) |
+|---|---|---|
+| O101 | 6 | 3000 |
+| O102 | 4 | 4000 |
+| O108 | 4 | 4000 |
+
+C1 now has 3 orders, 14 unshipped units, and 11000 fen outstanding. Replacing the outer `SUM(remaining_amount_cents)` with `SUM(DISTINCT remaining_amount_cents)` still counts 3 orders and 14 units, but sums only the distinct amounts 3000 and 4000, giving 7000 fen. It removes an equal value belonging to a different order, not a duplicate order. Aggregate the lines once per `(tenant_id, order_id)`, then sum every order's remaining amount by customer, as the query above does.
 
 This request displays only customers with unshipped quantities, so customers with none have no result row. To list every authorized customer, including those with zero outstanding shipments, start from the authorized customer set, left-join the aggregates, and fill in zeros according to the business definition. SQLite's `SUM`<sup>[【424】](../../book/references.md#ref-424)</sup> returns `NULL` when there are no non-null inputs. An empty result, unknown data, and zero must not be treated as the same thing.
 
@@ -255,16 +265,6 @@ This validates the query result on a fixed snapshot, not any model's SQL-generat
 | Temporal consistency | SQL and the reference computation read the same snapshot, not separate reads from a continually changing business database. |
 
 A small dataset can let incorrect SQL produce the right answer by coincidence. Regression cases should include order IDs shared across tenants, customers with different permissions within one tenant, two orders with equal amounts, multiline orders, partial shipments, cancelled orders with remaining quantities, and orders exactly at both date boundaries. Test empty results and missing fields separately. Authorization tests should deliberately omit scope predicates or request base tables or prohibited functions, confirming that the execution service rejects the request or can return only authorized data—not merely that the model follows its prompt.
-
-The repository includes an executable regression check for this example. From the repository root, run it with Python's standard library; no model API or database service is needed:
-
-```bash
-python3 -B -m unittest discover -s scripts/tests -p test_text_to_sql_example.py -v
-```
-
-The check reads each edition's DDL, data tables, bound values, query, and expected result directly from §§22.3–22.5. It executes the maintained SQL in a fresh in-memory SQLite database and compares the ordered integer results with a separate Python calculation. Deliberately incorrect queries must produce different results: dropping the tenant join key or customer filter, counting joined lines as orders, summing repeated header amounts, changing either time boundary, and including cancelled or fully shipped orders. A separate case distinguishes a missing-column error from a legitimate empty result.
-
-For the `SUM(DISTINCT ...)` trap, the test first confirms that the wrong query passes the original snapshot. It then adds T1/O108, a second C1 order with the same quantities and amounts as O102. C1 should now have 3 orders, 14 units, and 11000 fen outstanding; the wrong query still reports 7000 fen. This additional fixture makes the error observable without changing the published snapshot. These checks validate the chapter's query semantics and bilingual example consistency, not model accuracy or an authorization sandbox; they intentionally retain out-of-scope teaching rows to expose filtering mistakes.
 
 Report separate metrics. **Execution success rate** measures whether queries finish within the rules and resource budgets. **Execution accuracy** measures whether results match reference answers. **Business correctness** additionally requires the right question definition, authorized scope, temporal version, and final explanation. A valid query can compute the wrong question precisely; high scores on the first two metrics cannot replace business acceptance. Rerun the same task set after prompt changes, schema upgrades, or model replacements, retaining every failure category.
 
