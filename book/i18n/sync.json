@@ -1471,11 +1471,11 @@
       "translation_sha256": "c95e87b1cdf20533b593365976dfb0736db16437ae9726282b5671ea8d635a0a"
     },
     "docs/tools/03-skills/08-what-is-skill.md": {
-      "note": "Reviewed paired English/Chinese compact diagrams and adjacent explanations across all nine topics; preserved conditions, sequence, failures, code and math. Applied and verified lossless shared-reference migration in both languages. Reviewed updated reading and exporter guidance. Rendering and source preservation reports retained with the RC2 review artifacts.",
-      "reviewed_at": "2026-10-09T06:20:31+00:00",
-      "source_sha256": "8a2fbe84c7c4a725cbb66e0ec507b47d3296ba3094ff8e79dbfd2902c9218c95",
+      "note": "Reviewed paired English/Chinese additions on portable Skill resource references and distinct validation layers against the official Agent Skills specification accessed 2026-10-20.",
+      "reviewed_at": "2026-10-20T08:05:41+00:00",
+      "source_sha256": "c4c5165c92127856daa96358cedb7d7b8c2e28a2992ebf5bc210007326720d94",
       "translation": "docs/tools/03-skills/08-what-is-skill.zh.md",
-      "translation_sha256": "5b4eefaf571e1ac5db4efa31f62461bab6f731824fb9efeb507db6f0a6aff64b"
+      "translation_sha256": "db90901cd3ed0ef00083cd51a4af4319c6d9dc0e02b5b816e9e5db85e89c2962"
     },
     "docs/tools/03-skills/09-skill-vs-mcp.md": {
       "note": "Reviewed paired English/Chinese compact diagrams and adjacent explanations across all nine topics; preserved conditions, sequence, failures, code and math. Applied and verified lossless shared-reference migration in both languages. Reviewed updated reading and exporter guidance. Rendering and source preservation reports retained with the RC2 review artifacts.",
