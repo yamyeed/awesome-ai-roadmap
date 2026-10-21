@@ -213,7 +213,17 @@ The exact result is below. The application may convert fen to yuan for display w
 
 On first reviewing the draft, Lin notices that `COUNT(*)` immediately after the join would count O101 as two orders. `SUM(o.total_amount_cents)` would also count its 10000 fen twice.
 
-`SUM(DISTINCT amount)` is not a general remedy: if O102 and O106 were summed across customers in one aggregate, their equal contract values of 4000 fen would turn an 8000-fen total into 4000 fen. They belong to different customers, so this does not happen between their separate groups in the query above; aggregate `DISTINCT` removes duplicates within each group. A regression case for that query should include two distinct orders with equal unshipped totals for the same customer. Establish the row granularity first rather than adding `DISTINCT` whenever a number looks too large.
+`SUM(DISTINCT amount)` is not a general remedy: if O102 and O106 were summed across customers in one aggregate, their equal contract values of 4000 fen would turn an 8000-fen total into 4000 fen. They belong to different customers, so this does not happen between their separate groups in the query above; aggregate `DISTINCT` removes duplicates within each group.
+
+To expose the same mistake within C1's group, consider an extension of the snapshot: add T1/O108 for C1, with the same dates and status as O102 and one line of 4 units at 1000 fen each, none shipped. The original snapshot and its result above remain unchanged; this extended case has:
+
+| C1 order | Unshipped units | Unshipped amount (fen) |
+|---|---|---|
+| O101 | 6 | 3000 |
+| O102 | 4 | 4000 |
+| O108 | 4 | 4000 |
+
+C1 now has 3 orders, 14 unshipped units, and 11000 fen outstanding. Replacing the outer `SUM(remaining_amount_cents)` with `SUM(DISTINCT remaining_amount_cents)` still counts 3 orders and 14 units, but sums only the distinct amounts 3000 and 4000, giving 7000 fen. It removes an equal value belonging to a different order, not a duplicate order. Aggregate the lines once per `(tenant_id, order_id)`, then sum every order's remaining amount by customer, as the query above does.
 
 This request displays only customers with unshipped quantities, so customers with none have no result row. To list every authorized customer, including those with zero outstanding shipments, start from the authorized customer set, left-join the aggregates, and fill in zeros according to the business definition. SQLite's `SUM`<sup>[【424】](../../book/references.md#ref-424)</sup> returns `NULL` when there are no non-null inputs. An empty result, unknown data, and zero must not be treated as the same thing.
 
