@@ -132,6 +132,12 @@ description: "对 Python/Go 代码做安全与性能审查，输出含风险等�
 
 As with [tool description design](../01-function-calling/03-tool-schema-design.md), describe capabilities and boundaries clearly, then evaluate selection quality on a task set. Neither kind of description is the sole source of information or an enforcement rule.
 
+### 8.3.5 Keep referenced resources shallow and portable
+
+The official format recommends paths relative to the Skill root, such as `references/review_standards.md`, and keeping references one level deep from `SKILL.md`<sup>[【304】](../../book/references.md#ref-304)</sup>. Relative paths keep the directory movable. Shallow links also let the agent see from the entry file which resource answers a question, instead of following a chain from one reference file to another before reaching the needed material.
+
+This is an authoring convention, not a permission boundary. The host still decides how paths are resolved and whether a file may be read. Test the packaged directory in the target host: an absolute path that worked on the author's machine, a renamed file, or an undeclared interpreter can leave valid front matter attached to a Skill that fails only after activation.
+
 ## 8.4 Skills and related concepts
 
 These concepts are often confused. An analogy with work in a company helps separate them:
@@ -191,6 +197,19 @@ This is a division of engineering work: **use code for the parts that can be per
 
 Before installing a third-party Skill, review its scripts, dependency installation steps, external links, and permission requirements. Scripts run through the host's tool runtime and may read files, access the network, or cause side effects. The Skill body can also contain prompt injection. A simple format does not imply trustworthiness, freedom from dependencies, or automatic portability.
 
+### 8.5.1 Validate format, activation, resources, and outcomes separately
+
+The official `skills-ref validate` command checks front matter and naming conventions. That is a useful packaging gate, but it does not show that the right task activates the Skill, that referenced resources can be loaded, or that following the instructions produces an acceptable result.
+
+| Validation layer | A representative check | What passing establishes |
+|---|---|---|
+| Format | Run the reference validator on the Skill directory | Required metadata and naming rules are satisfied |
+| Activation | Test matching, non-matching, and overlapping requests in the target host | The host selects the Skill in the intended cases |
+| Resources | Load each referenced file and run scripts with declared dependencies | Paths and runtime assumptions work in the packaged environment |
+| Outcome | Execute representative tasks, including failure and permission cases | The procedure meets its task-specific acceptance criteria |
+
+Keep evidence from each layer distinct. A validator success is not a security review; successful activation is not task completion; and one good output does not establish that negative cases or side effects are handled correctly.
+
 ## 8.6 From an Anthropic feature to an open standard
 
 Anthropic introduced Agent Skills in October 2025, initially through three entry points: Claude Code, the Claude API, and claude.ai.
@@ -236,7 +255,9 @@ The same Skill can have both explicit and automatic entry points. Unattended ope
 5. **`name` and `description` contribute to discovery**. Selection also depends on the user request and host routing.
 6. **Tools provide capabilities; Skills provide methods**. They can be combined, but a writing-only Skill need not call tools.
 7. **Activation depends on the host**. Slash commands and automatic loading can coexist.
-8. **An open format supports reuse**, but scripts, permissions, and host extensions affect compatibility.
+8. **Relative, shallow resource references improve portability and loading reliability**, while the host still enforces file access.
+9. **Validate each layer separately**: format, activation, resource loading, and task outcomes establish different facts.
+10. **An open format supports reuse**, but scripts, permissions, and host extensions affect compatibility.
 
 ## References
 
